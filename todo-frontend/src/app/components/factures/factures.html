@@ -1,0 +1,186 @@
+<div class="page-layout">
+  
+  <aside class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span class="logo-name">free<em>hub</em></span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a class="nav-item" routerLink="/clients"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a class="nav-item" routerLink="/projets"><img src="icons/projets.png" class="nav-icon-img" alt=""> Projets</a>
+      <a class="nav-item active" routerLink="/factures"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a class="nav-item" routerLink="/messagerie"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a class="nav-item" routerLink="/aide"><img src="icons/ressources.png" class="nav-icon-img" alt=""> Aide & Ressources</a>
+      <a class="nav-item" routerLink="/parametres"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </nav>
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </aside>
+
+  <main class="page-main">
+    <div class="page-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div>
+        <h1>🧾 Factures</h1>
+        <p>{{ factures.length }} facture{{ factures.length > 1 ? 's' : '' }}</p>
+      </div>
+      <div class="header-right"><button class="btn-primary" (click)="showForm = !showForm">
+        {{ showForm ? 'Annuler' : '+ Nouvelle facture' }}
+      </button></div>
+    </div>
+
+    <!-- Formulaire generateur -->
+    <div class="card fac-form" *ngIf="showForm">
+      <h2>Nouvelle facture</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client *</label>
+          <select [(ngModel)]="selectedClientId">
+            <option [ngValue]="null">Sélectionner un client...</option>
+            <option *ngFor="let c of clients" [ngValue]="c.id">
+              {{ c.name }}{{ c.company ? ' — ' + c.company : '' }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Projet lié</label>
+          <select [(ngModel)]="selectedProjetId">
+            <option [ngValue]="null">Aucun projet</option>
+            <option *ngFor="let p of projets" [ngValue]="p.id">{{ p.titre }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description / Objet</label>
+        <textarea [(ngModel)]="newFacture.description" placeholder="Prestation de design graphique..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Montant HT (€) *</label>
+          <input type="number" [(ngModel)]="newFacture.montant" placeholder="0.00" min="0" />
+        </div>
+        <div class="form-group">
+          <label>TVA (%)</label>
+          <input type="number" [(ngModel)]="newFacture.tva" placeholder="0 si auto-entrepreneur" min="0" max="100" />
+        </div>
+        <div class="form-group">
+          <label>Date d'échéance</label>
+          <input type="date" [(ngModel)]="newFacture.dateEcheance" />
+        </div>
+      </div>
+      <div class="fac-total-preview" *ngIf="newFacture.montant">
+        <span>HT : <strong>{{ newFacture.montant | number:'1.2-2' }} €</strong></span>
+        <span>TVA ({{ newFacture.tva || 0 }}%) : <strong>{{ ((newFacture.montant || 0) * (newFacture.tva || 0) / 100) | number:'1.2-2' }} €</strong></span>
+        <span class="ttc">TTC : <strong>{{ totalTTC(newFacture) | number:'1.2-2' }} €</strong></span>
+      </div>
+      <button class="btn-primary" (click)="create()">Créer la facture</button>
+    </div>
+
+    <!-- Liste des factures -->
+    <div *ngIf="factures.length === 0 && !showForm" class="coming-soon">
+      <div class="coming-icon">🧾</div>
+      <h2>Aucune facture</h2>
+      <p>Créez votre première facture et suivez vos paiements depuis FreeHub.</p>
+      <button class="btn-primary" style="margin-top: 16px" (click)="showForm = true">Créer une facture</button>
+    </div>
+
+    <div class="fac-table-wrapper" *ngIf="factures.length > 0">
+      <table class="fac-table">
+        <thead>
+          <tr>
+            <th>Numéro</th>
+            <th>Client</th>
+            <th>Projet</th>
+            <th>Montant TTC</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of factures">
+            <td class="fac-num">{{ f.numero }}</td>
+            <td>{{ f.client?.name || '—' }}</td>
+            <td>{{ f.projet?.titre || '—' }}</td>
+            <td class="fac-amount">{{ totalTTC(f) | number:'1.2-2' }} €</td>
+            <td>{{ f.dateEmission }}</td>
+            <td>
+              <select class="status-select-sm" [ngClass]="getStatusClass(f.status || '')"
+                      [(ngModel)]="f.status" (change)="changeStatus(f, f.status!)">
+                <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+              </select>
+            </td>
+            <td class="fac-actions">
+              <button class="btn-icon" title="Voir" (click)="viewFacture = f">👁️</button>
+              <button class="btn-icon" title="Imprimer/Télécharger" (click)="print(f)">⬇️</button>
+              <button class="btn-icon" title="Partager" (click)="showShare = showShare?.id === f.id ? null : f">📤</button>
+              <button class="btn-icon btn-danger" title="Supprimer" (click)="delete(f.id)">✕</button>
+              <!-- menu partage -->
+              <div class="share-menu" *ngIf="showShare?.id === f.id">
+                <button (click)="shareByMail(f)">✉️ Envoyer par mail</button>
+                <button (click)="showShare = null">✕ Fermer</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Apercu facture (modal) -->
+    <div class="fac-overlay" *ngIf="viewFacture" (click)="viewFacture = null">
+      <div class="fac-preview" (click)="$event.stopPropagation()">
+        <div class="fac-preview-header">
+          <div>
+            <h2>FACTURE</h2>
+            <p class="fac-preview-num">{{ viewFacture.numero }}</p>
+          </div>
+          <div class="fac-preview-brand">FreeHub</div>
+        </div>
+        <div class="fac-preview-body">
+          <div class="fac-preview-row">
+            <div>
+              <p class="fac-preview-label">CLIENT</p>
+              <p class="fac-preview-val">{{ viewFacture.client?.name || '—' }}</p>
+              <p *ngIf="viewFacture.client?.company" style="color: #666; font-size: 13px;">{{ viewFacture.client?.company }}</p>
+            </div>
+            <div>
+              <p class="fac-preview-label">DATE D'ÉMISSION</p>
+              <p class="fac-preview-val">{{ viewFacture.dateEmission }}</p>
+              <p class="fac-preview-label" style="margin-top:8px">ÉCHÉANCE</p>
+              <p class="fac-preview-val">{{ viewFacture.dateEcheance || '—' }}</p>
+            </div>
+          </div>
+          <div class="fac-preview-desc">
+            <p class="fac-preview-label">DESCRIPTION</p>
+            <p>{{ viewFacture.description || 'Prestation de services' }}</p>
+          </div>
+          <table class="fac-preview-table">
+            <thead><tr><th>Description</th><th>HT</th><th>TVA</th><th>TTC</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>{{ viewFacture.description || viewFacture.projet?.titre || 'Prestation' }}</td>
+                <td>{{ viewFacture.montant | number:'1.2-2' }} €</td>
+                <td>{{ viewFacture.tva || 0 }} %</td>
+                <td><strong>{{ totalTTC(viewFacture) | number:'1.2-2' }} €</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="fac-preview-footer">
+          <button class="btn-secondary" (click)="viewFacture = null">Fermer</button>
+          <button class="btn-primary" (click)="print(viewFacture)">⬇️ Télécharger</button>
+          <button class="btn-primary" (click)="showShare = viewFacture; viewFacture = null">📤 Partager</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

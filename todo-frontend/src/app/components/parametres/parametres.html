@@ -1,0 +1,118 @@
+<div class="page-layout">
+  
+  <aside class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span class="logo-name">free<em>hub</em></span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a class="nav-item" routerLink="/clients"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a class="nav-item" routerLink="/projets"><img src="icons/projets.png" class="nav-icon-img" alt=""> Projets</a>
+      <a class="nav-item" routerLink="/factures"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a class="nav-item" routerLink="/messagerie"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a class="nav-item" routerLink="/aide"><img src="icons/ressources.png" class="nav-icon-img" alt=""> Aide & Ressources</a>
+      <a class="nav-item active" routerLink="/parametres"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </nav>
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </aside>
+
+  <main class="page-main">
+    <div class="page-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div>
+        <h1>⚙️ Paramètres</h1>
+        <p>Gérez votre compte et vos préférences</p>
+      </div>
+    </div>
+
+    <!-- Profil -->
+    <div class="settings-section">
+      <h2>Mon profil</h2>
+      <div class="profile-row">
+        <div class="settings-avatar">{{ initials }}</div>
+        <div>
+          <div class="settings-username">
+            {{ firstName || lastName ? (firstName + ' ' + lastName) : username }}
+          </div>
+          <div class="settings-mail">{{ mailAddress }}</div>
+          <span class="role-badge" [class]="role">{{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infos compte -->
+    <div class="settings-section">
+      <h2>Informations du compte</h2>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="firstName">
+          <div class="info-label">Prénom</div>
+          <div class="info-value">{{ firstName }}</div>
+        </div>
+        <div class="info-item" *ngIf="lastName">
+          <div class="info-label">Nom</div>
+          <div class="info-value">{{ lastName }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Identifiant</div>
+          <div class="info-value">{{ username }}</div>
+        </div>
+        <div class="info-item" *ngIf="email">
+          <div class="info-label">Email personnel</div>
+          <div class="info-value">{{ email }}</div>
+        </div>
+        <div class="info-item" *ngIf="dateOfBirth">
+          <div class="info-label">Date de naissance</div>
+          <div class="info-value">{{ dateOfBirth }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Adresse email FreeHub</div>
+          <div class="info-value accent">{{ mailAddress }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Rôle</div>
+          <div class="info-value">{{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mot de passe -->
+    <div class="settings-section">
+      <h2>Sécurité</h2>
+      <button class="btn-secondary" (click)="showPwdForm = !showPwdForm">
+        {{ showPwdForm ? 'Annuler' : '🔒 Changer le mot de passe' }}
+      </button>
+
+      <div class="pwd-form" *ngIf="showPwdForm">
+        <div class="form-group">
+          <label>Mot de passe actuel</label>
+          <input type="password" [(ngModel)]="oldPassword" placeholder="••••••••" />
+        </div>
+        <div class="form-group">
+          <label>Nouveau mot de passe</label>
+          <input type="password" [(ngModel)]="newPassword" placeholder="Minimum 6 caractères" />
+        </div>
+        <div class="form-group">
+          <label>Confirmer le nouveau mot de passe</label>
+          <input type="password" [(ngModel)]="confirmPassword" placeholder="••••••••" />
+        </div>
+        <div class="header-right"><button class="btn-primary" (click)="changePassword()">Mettre à jour</button>
+        <p class="pwd-msg" *ngIf="pwdMessage" [class.error]="pwdError">{{ pwdMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Bouton deconnexion mobile uniquement -->
+    <div class="mobile-logout-section">
+      <button class="mobile-logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button></div>
+    </div>
+
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

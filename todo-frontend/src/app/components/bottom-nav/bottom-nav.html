@@ -1,0 +1,37 @@
+<!-- Panel "Plus" -->
+<div class="more-panel" *ngIf="showMore" (click)="showMore=false">
+  <div class="more-panel-inner" (click)="$event.stopPropagation()">
+    <button class="more-item" (click)="goTo('/aide')">
+      <img src="icons/ressources.png" class="more-icon" alt="">
+      <span>Aide & Ressources</span>
+    </button>
+    <button class="more-item" (click)="goTo('/parametres')">
+      <img src="icons/parametres.png" class="more-icon" alt="">
+      <span>Paramètres</span>
+    </button>
+    <div class="more-divider"></div>
+    <button class="more-item logout" (click)="logout()">
+      <span class="more-logout-icon">⏻</span>
+      <span>Se déconnecter</span>
+    </button>
+  </div>
+</div>
+
+<nav class="bottom-nav" [class.hidden]="hidden">
+  <a
+    *ngFor="let item of navItems"
+    [routerLink]="item.route"
+    class="bottom-nav-item"
+    [class.active]="isActive(item.route)"
+    (click)="showMore=false"
+  >
+    <img [src]="item.icon" class="bottom-nav-icon" [alt]="item.label">
+    <span class="bottom-nav-label">{{ item.label }}</span>
+  </a>
+
+  <!-- Bouton + -->
+  <button class="bottom-nav-item more-btn" [class.active]="showMore" (click)="toggleMore()">
+    <span class="more-plus-icon" [class.open]="showMore">+</span>
+    <span class="bottom-nav-label">Plus</span>
+  </button>
+</nav>

@@ -1,0 +1,69 @@
+.page-layout { display: flex; height: 100vh; overflow: hidden; background: var(--bg); }
+.page-main { flex: 1; padding: 40px 44px; overflow-y: auto; }
+.page-header { margin-bottom: 40px; }
+.page-header h1 { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.page-header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+.coming-soon { text-align: center; padding: 80px 20px; }
+.coming-icon { font-size: 64px; margin-bottom: 20px; }
+.coming-soon h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.coming-soon p { font-size: 15px; color: var(--text-muted); line-height: 1.7; }
+
+/* Formulaire */
+.fac-form { margin-bottom: 24px; }
+.fac-form h2 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+.fac-total-preview {
+  display: flex; gap: 24px; align-items: center;
+  background: var(--accent-light); border-radius: 10px;
+  padding: 12px 20px; margin: 12px 0; font-size: 14px; color: var(--text);
+}
+.fac-total-preview .ttc { font-size: 16px; color: var(--accent); }
+
+/* Table */
+.fac-table-wrapper { overflow-x: auto; }
+.fac-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.fac-table th { background: var(--accent-light); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+.fac-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.fac-table tr:hover td { background: #faf9ff; }
+.fac-num { font-weight: 700; color: var(--accent); font-family: monospace; font-size: 13px; }
+.fac-amount { font-weight: 700; }
+
+/* Statuts */
+.status-select-sm { border: none; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; outline: none; }
+.fac-status-BROUILLON  { background: #f3f4f6; color: #374151; }
+.fac-status-ENVOYEE    { background: #ede9fe; color: #5b21b6; }
+.fac-status-PAYEE      { background: #d1fae5; color: #065f46; }
+.fac-status-EN_RETARD  { background: #fee2e2; color: #991b1b; }
+.fac-status-ANNULEE    { background: #f3f4f6; color: #9ca3af; text-decoration: line-through; }
+
+/* Actions */
+.fac-actions { display: flex; gap: 6px; align-items: center; position: relative; }
+.btn-icon { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 14px; transition: all 0.15s; }
+.btn-icon:hover { background: var(--accent-light); border-color: var(--accent); }
+.btn-icon.btn-danger:hover { background: #fee2e2; border-color: #f87171; }
+.share-menu { position: absolute; right: 0; top: 36px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; display: flex; flex-direction: column; min-width: 180px; overflow: hidden; }
+.share-menu button { background: none; border: none; padding: 12px 16px; font-size: 14px; text-align: left; cursor: pointer; transition: background 0.15s; }
+.share-menu button:hover { background: var(--accent-light); }
+
+/* Overlay apercu */
+.fac-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.fac-preview { background: white; border-radius: 16px; width: 100%; max-width: 640px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; }
+.fac-preview-header { background: var(--accent); color: white; padding: 24px 32px; display: flex; justify-content: space-between; align-items: flex-end; }
+.fac-preview-header h2 { font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+.fac-preview-num { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+.fac-preview-brand { font-size: 28px; font-weight: 800; opacity: 0.9; }
+.fac-preview-body { padding: 28px 32px; }
+.fac-preview-row { display: flex; justify-content: space-between; margin-bottom: 24px; }
+.fac-preview-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.8px; margin-bottom: 4px; }
+.fac-preview-val { font-size: 15px; font-weight: 600; color: #111; }
+.fac-preview-desc { margin-bottom: 20px; }
+.fac-preview-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.fac-preview-table th { background: #f9fafb; padding: 8px 12px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; }
+.fac-preview-table td { padding: 12px; border-top: 1px solid #e5e7eb; }
+.fac-preview-footer { display: flex; gap: 10px; padding: 20px 32px; background: #f9fafb; border-top: 1px solid #e5e7eb; }
+
+/* print */
+@media print {
+  .hub-sidebar, .page-header, .fac-form, .fac-table-wrapper, .fac-overlay .fac-preview-footer { display: none !important; }
+  .fac-overlay { position: static; background: none; }
+  .fac-preview { box-shadow: none; max-width: 100%; }
+}

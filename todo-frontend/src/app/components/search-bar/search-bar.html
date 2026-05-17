@@ -1,0 +1,64 @@
+<!-- Wrapper relatif pour le dropdown -->
+<div class="search-wrapper">
+
+  <!-- Bouton loupe -->
+  <button class="header-search-btn" [class.active]="open" (click)="toggleOpen()" title="Rechercher">
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+      <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="12.5" y1="12.5" x2="17" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!-- Panel de recherche -->
+  <div class="search-panel" *ngIf="open">
+    <div class="search-input-row">
+      <svg viewBox="0 0 20 20" fill="none" width="16" height="16" class="search-icon-sm">
+        <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.6"/>
+        <line x1="12.5" y1="12.5" x2="17" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <input
+        id="global-search-input"
+        type="text"
+        [(ngModel)]="query"
+        (ngModelChange)="onInput()"
+        placeholder="Rechercher un client, une facture, un projet..."
+        class="search-input"
+        (keydown.escape)="close()"
+        autocomplete="off"
+      />
+      <button class="search-close-btn" (click)="close()" *ngIf="query">✕</button>
+    </div>
+
+    <!-- Résultats -->
+    <div class="search-results" *ngIf="query.trim()">
+
+      <div *ngIf="results.length === 0 && !loading" class="search-empty">
+        Aucun résultat pour « {{ query }} »
+      </div>
+
+      <div *ngFor="let group of groupedResults" class="search-group">
+        <div class="search-group-label">
+          {{ typeIcon[group.type] }} {{ typeLabel[group.type] }}
+        </div>
+        <button
+          *ngFor="let r of group.items"
+          class="search-result-item"
+          (click)="goTo(r)"
+        >
+          <span class="result-label">{{ r.label }}</span>
+          <span class="result-sub" *ngIf="r.sub">{{ r.sub }}</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Hint quand vide -->
+    <div class="search-hint" *ngIf="!query.trim()">
+      <span>Tapez pour chercher dans vos clients, factures et projets</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Overlay de fermeture (clic en dehors) -->
+<div class="search-overlay" *ngIf="open" (click)="close()"></div>

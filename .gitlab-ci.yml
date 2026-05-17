@@ -1,0 +1,54 @@
+stages:
+  - build
+  - test
+  - quality
+  - e2e
+
+# --- BUILD ---
+# compile le projet et genere le .jar sans lancer les tests
+build:
+  stage: build
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - cd todo
+    - mvn package -DskipTests
+  artifacts:
+    paths:
+      - todo/target/*.jar
+
+# --- TESTS UNITAIRES ET D'INTEGRATION ---
+# JUnit (ClientServiceTest) + integration (AuthControllerIntegrationTest)
+# utilise H2 en memoire grace au profil "test" -- pas besoin de PostgreSQL
+# les tests Selenium sont exclus ici (ils ont besoin du frontend)
+test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - cd todo
+    - mvn test -Dtest="DemoApplicationTests,ClientServiceTest,AuthControllerIntegrationTest" -DfailIfNoTests=false
+
+# --- QUALITE SONARQUBE ---
+# analyse la qualite du code (couverture, bugs, code smells)
+quality:
+  stage: quality
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - cd todo
+    - mvn verify sonar:sonar
+      -Dsonar.projectKey=freehub
+      -Dsonar.host.url=http://sonarqube:9000
+      -Dsonar.login=admin
+  allow_failure: true
+
+# --- TESTS E2E SELENIUM ---
+# tests bout en bout qui pilotent un vrai navigateur Chrome
+# necessitent le frontend Angular sur localhost:4200
+# donc lances manuellement ou dans un env avec le frontend dispo
+e2e:
+  stage: e2e
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - cd todo
+    - mvn test -Dtest="SeleniumTest" -DfailIfNoTests=false
+  allow_failure: true
+  when: manual

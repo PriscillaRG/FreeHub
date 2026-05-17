@@ -1,0 +1,123 @@
+<div class="page-layout">
+
+  <aside class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span class="logo-name">free<em>hub</em></span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a class="nav-item active" routerLink="/clients"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a class="nav-item" routerLink="/projets"><img src="icons/projets.png" class="nav-icon-img" alt=""> Projets</a>
+      <a class="nav-item" routerLink="/factures"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a class="nav-item" routerLink="/messagerie"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a class="nav-item" routerLink="/aide"><img src="icons/ressources.png" class="nav-icon-img" alt=""> Aide & Ressources</a>
+      <a class="nav-item" routerLink="/parametres"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </nav>
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </aside>
+
+  <main class="page-main">
+    <div class="page-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div>
+        <h1>👥 Clients</h1>
+        <p>{{ clients.length }} contacts enregistrés</p>
+      </div>
+      <div class="header-right"><button class="btn-primary" (click)="showForm = !showForm; cancelEdit()">+ Nouveau client</button></div>
+    </div>
+
+    <!-- Formulaire création -->
+    <div class="form-panel" *ngIf="showForm">
+      <h3>Nouveau client</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nom *</label>
+          <input [(ngModel)]="newClient.name" placeholder="Nom complet" />
+        </div>
+        <div class="form-group">
+          <label>Entreprise / Société</label>
+          <input [(ngModel)]="newClient.company" placeholder="Agence, studio, entreprise..." />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="newClient.email" placeholder="email@exemple.com" />
+        </div>
+        <div class="form-group">
+          <label>Téléphone</label>
+          <input [(ngModel)]="newClient.phone" placeholder="06 00 00 00 00" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="add()">Ajouter</button>
+        <button class="btn-secondary" (click)="showForm = false">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Modal édition client -->
+    <div class="edit-overlay" *ngIf="editMode" (click)="cancelEdit()">
+      <div class="edit-modal" (click)="$event.stopPropagation()">
+        <h2>Modifier le client</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom *</label>
+            <input [(ngModel)]="editMode.name" placeholder="Nom complet" />
+          </div>
+          <div class="form-group">
+            <label>Entreprise / Société</label>
+            <input [(ngModel)]="editMode.company" placeholder="Agence, studio..." />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="editMode.email" placeholder="email@exemple.com" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input [(ngModel)]="editMode.phone" placeholder="06 00 00 00 00" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea [(ngModel)]="editMode.notes" placeholder="Informations complémentaires..."></textarea>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-primary" (click)="saveEdit()">Sauvegarder</button>
+          <button class="btn-secondary" (click)="cancelEdit()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille clients -->
+    <div class="clients-grid" *ngIf="clients.length > 0; else emptyState">
+      <div class="client-card" *ngFor="let c of clients" (click)="startEdit(c)">
+        <div class="client-avatar">{{ getInitials(c.name) }}</div>
+        <div class="client-info">
+          <div class="client-name">{{ c.name }}</div>
+          <div class="client-company" *ngIf="c.company">🏢 {{ c.company }}</div>
+          <div class="client-email" *ngIf="c.email">{{ c.email }}</div>
+          <div class="client-phone" *ngIf="c.phone">{{ c.phone }}</div>
+        </div>
+        <button class="btn-danger btn-sm delete-btn" (click)="delete(c.id!); $event.stopPropagation()">✕</button>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <p>Aucun client pour l'instant.<br>Ajoutez votre premier contact !</p>
+      </div>
+    </ng-template>
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

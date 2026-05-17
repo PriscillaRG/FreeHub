@@ -1,0 +1,95 @@
+<div class="page-layout">
+  
+  <aside class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span class="logo-name">free<em>hub</em></span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a class="nav-item" routerLink="/clients"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a class="nav-item" routerLink="/projets"><img src="icons/projets.png" class="nav-icon-img" alt=""> Projets</a>
+      <a class="nav-item" routerLink="/factures"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a class="nav-item" routerLink="/messagerie"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a class="nav-item active" routerLink="/aide"><img src="icons/ressources.png" class="nav-icon-img" alt=""> Aide & Ressources</a>
+      <a class="nav-item" routerLink="/parametres"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </nav>
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </aside>
+
+  <main class="page-main">
+    <div class="page-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div>
+        <h1>💡 Aide & Ressources</h1>
+        <p>FAQ et liens utiles pour votre activité freelance</p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="aide-section">
+      <h2>❓ Questions fréquentes</h2>
+      <div class="faq-list">
+        <div class="faq-item" *ngFor="let faq of faqs" (click)="toggle(faq)">
+          <div class="faq-question">
+            <span>{{ faq.q }}</span>
+            <span class="faq-toggle">{{ faq.open ? '▲' : '▼' }}</span>
+          </div>
+          <div class="faq-answer" *ngIf="faq.open">{{ faq.a }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ressources -->
+    <section class="aide-section">
+      <h2>📎 Ressources utiles</h2>
+      <div class="ressources-grid">
+        <a *ngFor="let r of ressources"
+           [href]="r.url"
+           target="_blank"
+           class="ressource-card">
+          <span class="ressource-icon">{{ r.icon }}</span>
+          <span class="ressource-label">{{ r.label }}</span>
+          <span class="ressource-arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="aide-section">
+      <h2>📬 Contact</h2>
+      <div class="contact-card">
+        <div class="contact-row">
+          <span class="contact-icon">✉️</span>
+          <div>
+            <div class="contact-label">Support FreeHub</div>
+            <a href="mailto:support@freehub.app" class="contact-link">support@freehub.app</a>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="contact-icon">🐛</span>
+          <div>
+            <div class="contact-label">Signaler un bug</div>
+            <a href="mailto:bugs@freehub.app" class="contact-link">bugs@freehub.app</a>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="contact-icon">💬</span>
+          <div>
+            <div class="contact-label">Suggérer une fonctionnalité</div>
+            <p class="contact-hint">Utilisez la messagerie intégrée ou envoyez un mail à <a href="mailto:ideas@freehub.app" class="contact-link">ideas@freehub.app</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

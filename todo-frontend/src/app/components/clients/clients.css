@@ -1,0 +1,65 @@
+.page-layout { display: flex; height: 100vh; overflow: hidden; background: var(--bg); }
+.page-main { flex: 1; padding: 40px 48px; overflow-y: auto; }
+
+.form-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-card); }
+.form-panel h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+.form-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+.clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+
+.client-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+.client-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--sage); }
+.client-card.selected { border-color: var(--sage); background: var(--sage-light); }
+
+.client-avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--lavender));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.client-name { font-size: 15px; font-weight: 600; color: var(--text); font-family: 'Montserrat', sans-serif; }
+.client-company { font-size: 11px; color: var(--lavender); font-weight: 600; margin-top: 2px; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 0.4px; }
+.client-email, .client-phone { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.delete-btn { position: absolute; top: 10px; right: 10px; opacity: 0; transition: opacity 0.15s; }
+.client-card:hover .delete-btn { opacity: 1; }
+
+/* Modal édition */
+.edit-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 500; display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+.edit-modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px 32px; width: 100%; max-width: 540px; box-shadow: var(--shadow);
+  animation: slideUp 0.2s ease;
+}
+.edit-modal h2 {
+  font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700;
+  margin-bottom: 20px; color: var(--text);
+}
+.edit-modal textarea { min-height: 80px; resize: vertical; }
+.edit-actions { display: flex; gap: 10px; margin-top: 16px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (max-width: 768px) {
+  .edit-overlay { align-items: flex-end; }
+  .edit-modal { border-radius: 20px 20px 0 0; max-width: 100%; padding: 24px 20px; }
+}

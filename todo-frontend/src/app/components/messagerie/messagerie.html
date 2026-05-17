@@ -1,0 +1,115 @@
+<div class="page-layout">
+  
+  <aside class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span class="logo-name">free<em>hub</em></span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a class="nav-item" routerLink="/clients"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a class="nav-item" routerLink="/projets"><img src="icons/projets.png" class="nav-icon-img" alt=""> Projets</a>
+      <a class="nav-item" routerLink="/factures"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a class="nav-item active" routerLink="/messagerie"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a class="nav-item" routerLink="/aide"><img src="icons/ressources.png" class="nav-icon-img" alt=""> Aide & Ressources</a>
+      <a class="nav-item" routerLink="/parametres"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </nav>
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </aside>
+
+  <main class="page-main">
+    <div class="page-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div>
+        <h1>✉️ Messagerie</h1>
+        <p class="mail-address">📧 <strong>{{ mailAddress }}</strong></p>
+      </div>
+      <div class="header-right"><button class="btn-primary" (click)="showCompose = !showCompose">
+        {{ showCompose ? 'Annuler' : '✏️ Nouveau message' }}
+      </button></div>
+    </div>
+
+    <!-- Compose -->
+    <div class="compose-panel" *ngIf="showCompose">
+      <h3>Nouveau message</h3>
+      <div class="form-group">
+        <label>À *</label>
+        <input [(ngModel)]="newMail.to" placeholder="destinataire@exemple.com" />
+      </div>
+      <div class="form-group">
+        <label>Objet *</label>
+        <input [(ngModel)]="newMail.subject" placeholder="Sujet du message" />
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea [(ngModel)]="newMail.body" rows="6" placeholder="Rédigez votre message..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="send()">Envoyer ✈️</button>
+        <button class="btn-secondary" (click)="showCompose = false">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="mail-tabs" *ngIf="!showCompose">
+      <button class="tab-btn" [class.active]="activeTab === 'recus'" (click)="activeTab = 'recus'">
+        Boîte de réception
+        <span class="badge" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'envoyes'" (click)="activeTab = 'envoyes'">
+        Messages envoyés
+        <span class="badge neutral" *ngIf="sent.length > 0">{{ sent.length }}</span>
+      </button>
+    </div>
+
+    <!-- Reçus -->
+    <div *ngIf="activeTab === 'recus' && !showCompose">
+      <div *ngIf="inbox.length === 0" class="mail-empty">
+        <div class="mail-icon">📭</div>
+        <h2>Boîte de réception vide</h2>
+        <p>Partagez votre adresse <strong>{{ mailAddress }}</strong> à vos clients pour commencer à échanger.</p>
+        <button class="btn-primary" style="margin-top: 16px" (click)="showCompose = true">Envoyer un message</button>
+      </div>
+      <ul class="mail-list" *ngIf="inbox.length > 0">
+        <li *ngFor="let m of inbox" class="mail-item" [class.unread]="!m.read" (click)="markRead(m)">
+          <div class="mail-from">{{ m.from || 'Expéditeur inconnu' }}</div>
+          <div class="mail-subject">{{ m.subject }}</div>
+          <div class="mail-preview">{{ m.body | slice:0:80 }}{{ m.body.length > 80 ? '...' : '' }}</div>
+          <div class="mail-meta">
+            <span class="mail-date">{{ m.date }}</span>
+            <button class="btn-sm btn-danger" (click)="$event.stopPropagation(); deleteMail(inbox, m.id, 'fh_inbox')">✕</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Envoyés -->
+    <div *ngIf="activeTab === 'envoyes' && !showCompose">
+      <div *ngIf="sent.length === 0" class="mail-empty">
+        <div class="mail-icon">📤</div>
+        <h2>Aucun message envoyé</h2>
+        <p>Les messages que vous envoyez apparaîtront ici.</p>
+      </div>
+      <ul class="mail-list" *ngIf="sent.length > 0">
+        <li *ngFor="let m of sent" class="mail-item sent-item">
+          <div class="mail-from">À : {{ m.to }}</div>
+          <div class="mail-subject">{{ m.subject }}</div>
+          <div class="mail-preview">{{ m.body | slice:0:80 }}{{ m.body.length > 80 ? '...' : '' }}</div>
+          <div class="mail-meta">
+            <span class="mail-date">{{ m.date }}</span>
+            <button class="btn-sm btn-danger" (click)="deleteMail(sent, m.id, 'fh_sent')">✕</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

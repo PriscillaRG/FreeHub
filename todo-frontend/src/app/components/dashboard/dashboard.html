@@ -1,0 +1,172 @@
+<div class="hub-container">
+  
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+
+    <div class="sidebar-logo">
+      <img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub logo">
+      <span class="logo-name">free<em>hub</em></span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <a class="nav-item active" routerLink="/dashboard">
+        <img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard
+      </a>
+      <a class="nav-item" routerLink="/clients">
+        <img src="icons/clients.png" class="nav-icon-img" alt=""> Clients
+      </a>
+      <a class="nav-item" routerLink="/projets">
+        <img src="icons/projets.png" class="nav-icon-img" alt=""> Projets
+      </a>
+      <a class="nav-item" routerLink="/factures">
+        <img src="icons/factures.png" class="nav-icon-img" alt=""> Factures
+      </a>
+      <a class="nav-item" routerLink="/messagerie">
+        <img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie
+      </a>
+      <a class="nav-item" routerLink="/aide">
+        <img src="icons/ressources.png" class="nav-icon-img" alt=""> Ressources
+      </a>
+      <a class="nav-item" routerLink="/parametres">
+        <img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres
+      </a>
+      <a *ngIf="role === 'ADMIN'" class="nav-item admin-link" routerLink="/admin">
+        <span class="nav-icon">🛡️</span> Admin
+      </a>
+    </nav>
+
+    <!-- Carte profil en bas -->
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="hub-main">
+
+    <!-- En-tête salutation -->
+    <div class="hub-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div class="greeting-block">
+        <h1>Bonjour {{ greetingEmoji }}</h1>
+        <p>Prêt·e à libérer votre créativité ?</p>
+      </div>
+      <div class="header-actions">
+        <div class="header-date">{{ 'Vendredi 9 mai 2026' }}</div>
+      </div>
+    </div>
+
+    <!-- ── Layout 2 colonnes ── -->
+    <div class="dashboard-layout">
+
+      <!-- COLONNE GAUCHE -->
+      <div class="col-main">
+
+        <!-- Stats CA + Bénéfices -->
+        <div class="stats-row">
+          <div class="stat-card lav">
+            <div class="stat-label">Chiffre d'affaires</div>
+            <div class="stat-value">{{ caFormatted }}</div>
+            <div class="stat-trend" [class.up]="caTrendUp" [class.down]="!caTrendUp">{{ caTrendLabel }}</div>
+          </div>
+          <div class="stat-card sage">
+            <div class="stat-label">À recevoir</div>
+            <div class="stat-value">{{ aRecevoirFormatted }}</div>
+            <div class="stat-trend">factures envoyées</div>
+          </div>
+          <div class="stat-card cream">
+            <div class="stat-label">Clients</div>
+            <div class="stat-value">{{ clientCount }}</div>
+            <div class="stat-trend">contacts actifs</div>
+          </div>
+          <div class="stat-card terra">
+            <div class="stat-label">Factures</div>
+            <div class="stat-value">{{ factureCount }}</div>
+            <div class="stat-trend">émises cette année</div>
+          </div>
+        </div>
+
+        <!-- Graphique d'activité -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Graphique d'activité</div>
+            <div class="chart-legend"><span class="legend-dot lav"></span> CA mensuel 2026</div>
+          </div>
+          <div class="chart-wrap">
+            <canvas #revenueChart></canvas>
+          </div>
+        </div>
+
+        <!-- Raccourcis -->
+        <div class="shortcuts-section">
+          <div class="section-label">Raccourcis</div>
+          <div class="shortcuts-grid">
+            <a *ngFor="let s of shortcuts" [routerLink]="s.route" class="shortcut-btn">
+              <span class="shortcut-icon">{{ s.icon }}</span>
+              <span class="shortcut-label">{{ s.label }}</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLONNE DROITE -->
+      <div class="col-side">
+
+        <!-- À faire aujourd'hui -->
+        <div class="side-card">
+          <div class="side-card-title">À faire aujourd'hui</div>
+          <div class="todo-list">
+            <a routerLink="/factures" class="todo-item todo-item-link">
+              <span class="todo-dot lav"></span>
+              <span class="todo-label">Factures à envoyer</span>
+              <span class="todo-badge">{{ facturesBrouillon }}</span>
+            </a>
+            <a routerLink="/factures" class="todo-item todo-item-link">
+              <span class="todo-dot terra"></span>
+              <span class="todo-label">Factures en retard</span>
+              <span class="todo-badge" [class.badge-alert]="facturesEnRetard > 0">{{ facturesEnRetard }}</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Activites recentes -->
+        <div class="side-card">
+          <div class="side-card-title">Activités récentes</div>
+          <div class="activity-list" *ngIf="recentActivities.length > 0">
+            <div class="activity-item" *ngFor="let a of recentActivities">
+              <div class="activity-info">
+                <div class="activity-label">{{ a.label }}</div>
+                <div class="activity-sub">{{ a.sub }} · {{ a.date }}</div>
+              </div>
+              <div class="activity-right">
+                <div class="activity-amount">{{ a.amount | number:'1.2-2' }} €</div>
+                <div class="activity-status" [class]="'status-' + a.status.toLowerCase()">
+                  {{ statusLabel(a.status) }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="activity-empty" *ngIf="recentActivities.length === 0">
+            Aucune activité récente
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

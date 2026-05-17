@@ -1,0 +1,175 @@
+<div class="app-container">
+
+  
+
+  <!-- Sidebar -->
+  <nav class="hub-sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span class="logo-name">free<em>hub</em></span></div>
+    <div class="sidebar-nav">
+      <a routerLink="/dashboard" class="nav-item"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a routerLink="/clients" class="nav-item"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a routerLink="/projets" class="nav-item active"><img src="icons/projets.png" class="nav-icon-img" alt=""> Projets</a>
+      <a routerLink="/factures" class="nav-item"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a routerLink="/messagerie" class="nav-item"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a routerLink="/aide" class="nav-item"><img src="icons/ressources.png" class="nav-icon-img" alt=""> Aide & Ressources</a>
+      <a routerLink="/parametres" class="nav-item"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </div>
+    <div class="profile-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ username }}</div>
+        <div class="profile-role">
+          <span class="role-dot" [class.admin]="role === 'ADMIN'"></span>
+          {{ role === 'ADMIN' ? 'Administrateur' : 'Créateur' }}
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">⏻ &nbsp;Se déconnecter</button>
+  </nav>
+
+  <!-- Contenu -->
+  <main class="main-content">
+    <div class="page-header">
+      <app-sidebar-toggle [open]="sidebarOpen" (toggle)="sidebarOpen=!sidebarOpen"></app-sidebar-toggle>
+      <div>
+        <h1>📁 Projets</h1>
+        <p>{{ projets.length }} projet{{ projets.length > 1 ? 's' : '' }}</p>
+      </div>
+      <div class="header-right"><button class="btn-primary" (click)="showForm = !showForm; editMode = null">
+        {{ showForm ? 'Annuler' : '+ Nouveau projet' }}
+      </button></div>
+    </div>
+
+    <!-- Formulaire creation -->
+    <div class="card" *ngIf="showForm" style="margin-bottom: 24px;">
+      <h2 style="margin-bottom: 16px; font-size: 16px;">Nouveau projet</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input [(ngModel)]="newProjet.titre" placeholder="Nom du projet" />
+        </div>
+        <div class="form-group">
+          <label>Client</label>
+          <select [(ngModel)]="selectedClientId">
+            <option [ngValue]="null">Aucun client</option>
+            <option *ngFor="let c of clients" [ngValue]="c.id">{{ c.name }}{{ c.company ? ' — ' + c.company : '' }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- domaine -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Domaine</label>
+          <select [(ngModel)]="newProjet.domaine">
+            <option value="">Sélectionner...</option>
+            <option *ngFor="let d of domaines" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="newProjet.domaine === 'Autre'">
+          <label>Précisez</label>
+          <input [(ngModel)]="newProjet.domaineCustom" placeholder="ex: Motion design, 3D..." />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="newProjet.description" placeholder="Decrivez le projet..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date début</label>
+          <input type="date" [(ngModel)]="newProjet.dateDebut" />
+        </div>
+        <div class="form-group">
+          <label>Date fin</label>
+          <input type="date" [(ngModel)]="newProjet.dateFin" />
+        </div>
+      </div>
+      <button class="btn-primary" (click)="add()">Créer le projet</button>
+    </div>
+
+    <!-- Modal edition -->
+    <div class="edit-overlay" *ngIf="editMode" (click)="cancelEdit()">
+      <div class="edit-modal" (click)="$event.stopPropagation()">
+        <h2>✏️ Modifier le projet</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Titre *</label>
+            <input [(ngModel)]="editMode.titre" />
+          </div>
+          <div class="form-group">
+            <label>Statut</label>
+            <select [(ngModel)]="editMode.status" [ngClass]="getStatusClass(editMode.status || '')">
+              <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Domaine</label>
+            <select [(ngModel)]="editMode.domaine">
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let d of domaines" [value]="d">{{ d }}</option>
+            </select>
+          </div>
+          <div class="form-group" *ngIf="editMode.domaine === 'Autre'">
+            <label>Précisez</label>
+            <input [(ngModel)]="editMode.domaineCustom" placeholder="ex: Motion design..." />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editMode.description"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date début</label>
+            <input type="date" [(ngModel)]="editMode.dateDebut" />
+          </div>
+          <div class="form-group">
+            <label>Date fin</label>
+            <input type="date" [(ngModel)]="editMode.dateFin" />
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-primary" (click)="saveEdit()">Sauvegarder</button>
+          <button class="btn-secondary" (click)="cancelEdit()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- État vide -->
+    <div *ngIf="projets.length === 0 && !showForm" class="empty-state">
+      <div class="empty-icon">📁</div>
+      <p>Aucun projet pour l'instant</p>
+      <button class="btn-primary" style="margin-top: 16px;" (click)="showForm = true">
+        Créer mon premier projet
+      </button>
+    </div>
+
+    <!-- Liste des projets -->
+    <ul class="prestation-list" *ngIf="projets.length > 0">
+      <li *ngFor="let p of projets" class="prestation-item">
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; cursor: pointer;"
+             (click)="startEdit(p, $event)">
+          <span style="font-weight: 600;">{{ p.titre }}</span>
+          <span style="font-size: 13px; color: var(--text-muted);">
+            <span *ngIf="getDomaineLabel(p)" class="domaine-tag">{{ getDomaineLabel(p) }}</span>
+            <span *ngIf="getClientName(p)"> · {{ getClientName(p) }}</span>
+            <span *ngIf="p.dateDebut"> · {{ p.dateDebut }}</span>
+          </span>
+          <span *ngIf="p.description" style="font-size: 13px; color: var(--text-muted);">
+            {{ p.description }}
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span [ngClass]="'status-badge ' + getStatusClass(p.status || '')">{{ p.status }}</span>
+          <button class="btn-sm btn-danger" (click)="delete(p.id, $event)" title="Supprimer">✕</button>
+        </div>
+      </li>
+    </ul>
+
+  </main>
+<app-bottom-nav></app-bottom-nav>
+</div>

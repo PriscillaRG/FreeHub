@@ -1,0 +1,109 @@
+<div class="auth-page">
+
+  <!-- Côté gauche déco -->
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="images/logo-brain.png" class="auth-brain" alt="FreeHub">
+      <span class="auth-logo-text">free<em>hub</em></span>
+    </div>
+    <h2 class="auth-tagline">La liberté de créer,<br><em>sans la charge administrative.</em></h2>
+    <p class="auth-sub">Rejoignez des centaines de créatifs qui gèrent leur activité sereinement.</p>
+
+    <!-- Décorations -->
+    <img src="images/sparkles.png" class="auth-deco-sparkles" alt="">
+    <img src="images/sparkles.png" class="auth-deco-sparkles2" alt="">
+    <img src="images/cloud.png" class="auth-deco-cloud" alt="">
+    <img src="images/cloud.png" class="auth-deco-cloud2" alt="">
+  </div>
+
+  <!-- Côté droit formulaire -->
+  <div class="auth-right">
+    <!-- Mini logo -->
+    <div class="auth-right-brand">
+      <img src="images/logo-brain.png" class="auth-right-brain" alt="">
+      <span class="auth-right-text">free<em>hub</em></span>
+    </div>
+
+    <!-- Décos discrètes à droite -->
+    <img src="images/sparkles.png" class="auth-right-sparkles" alt="">
+    <img src="images/cloud.png" class="auth-right-cloud" alt="">
+
+    <div class="auth-card">
+
+      <!-- ÉTAPE 1 : choix de la méthode -->
+      <div *ngIf="step === 'choice'">
+        <div class="auth-card-header">
+          <h1>Content de vous revoir ✨</h1>
+          <p>Choisissez comment vous connecter</p>
+        </div>
+
+        <div class="social-btn google" (click)="socialLogin('Google')">
+          <span class="social-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+          </span>
+          Se connecter avec Google
+        </div>
+        <div class="social-btn apple" (click)="socialLogin('Apple')">
+          <span class="social-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="#000">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+          </span>
+          Se connecter avec Apple
+        </div>
+
+        <div class="auth-divider"><span>ou</span></div>
+
+        <button class="btn-email" (click)="showForm()">
+          ✉️ &nbsp;Se connecter avec son email
+        </button>
+
+        <div *ngIf="error" class="auth-error">{{ error }}</div>
+
+        <p class="auth-switch">
+          Pas encore de compte ?
+          <a routerLink="/register">Créer un compte</a>
+        </p>
+      </div>
+
+      <!-- ÉTAPE 2 : formulaire -->
+      <div *ngIf="step === 'form'">
+        <button class="back-btn" (click)="backToChoice()">← Retour</button>
+
+        <div class="auth-card-header">
+          <h1>Connexion</h1>
+          <p>Entrez vos identifiants FreeHub</p>
+        </div>
+
+        <form (ngSubmit)="login()">
+          <div class="form-group">
+            <label>Nom d'utilisateur</label>
+            <input type="text" placeholder="votre_pseudo" [(ngModel)]="username" name="username" required autocomplete="username"/>
+          </div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" placeholder="••••••••" [(ngModel)]="password" name="password" required autocomplete="current-password"/>
+          </div>
+
+          <div *ngIf="error" class="auth-error">{{ error }}</div>
+
+          <button type="submit" class="btn-primary" [disabled]="loading">
+            {{ loading ? 'Connexion...' : 'Se connecter →' }}
+          </button>
+        </form>
+
+        <p class="auth-switch">
+          Pas encore de compte ?
+          <a routerLink="/register">Créer un compte</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

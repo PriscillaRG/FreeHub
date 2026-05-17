@@ -1,0 +1,102 @@
+<div class="page-layout">
+
+  <!-- Sidebar commune -->
+  <aside class="hub-sidebar">
+    <div class="sidebar-logo"><img src="images/logo-brain.png" class="sidebar-brain" alt="FreeHub"><span>free<em>hub</em></span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"><img src="icons/dashboard.png" class="nav-icon-img" alt=""> Dashboard</a>
+      <a class="nav-item active" routerLink="/prestations"><span class="nav-icon">🎨</span> Prestations</a>
+      <a class="nav-item" routerLink="/clients"><img src="icons/clients.png" class="nav-icon-img" alt=""> Clients</a>
+      <a class="nav-item" routerLink="/factures"><img src="icons/factures.png" class="nav-icon-img" alt=""> Factures</a>
+      <a class="nav-item" routerLink="/messagerie"><img src="icons/messagerie.png" class="nav-icon-img" alt=""> Messagerie</a>
+      <a class="nav-item" routerLink="/parametres"><img src="icons/parametres.png" class="nav-icon-img" alt=""> Paramètres</a>
+    </nav>
+  </aside>
+
+  <!-- Contenu -->
+  <main class="page-main">
+    <div class="page-header">
+      <div>
+        <h1>Prestations</h1>
+        <p>{{ prestations.length }} missions · {{ totalCa | number:'1.0-0' }} € de CA · {{ activeCount }} en cours</p>
+      </div>
+      <button class="btn-primary" (click)="showForm = !showForm">+ Nouvelle prestation</button>
+    </div>
+
+    <!-- Formulaire ajout -->
+    <div class="form-panel" *ngIf="showForm">
+      <h3>Nouvelle prestation</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input [(ngModel)]="newPrestation.title" placeholder="Nom de la mission" />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="newPrestation.type">
+            <option value="PHOTO">Photo</option>
+            <option value="DESIGN">Design</option>
+            <option value="MUSIQUE">Musique</option>
+            <option value="VIDEO">Vidéo</option>
+            <option value="REDACTION">Rédaction</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tarif (€)</label>
+          <input type="number" [(ngModel)]="newPrestation.price" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label>Date limite</label>
+          <input type="date" [(ngModel)]="newPrestation.dueDate" />
+        </div>
+        <div class="form-group">
+          <label>Client</label>
+          <select [(ngModel)]="selectedClientId">
+            <option [value]="undefined">— Sans client —</option>
+            <option *ngFor="let c of clients" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="add()">Créer</button>
+        <button class="btn-secondary" (click)="showForm = false">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Liste -->
+    <div class="prestation-list" *ngIf="prestations.length > 0; else emptyState">
+      <div class="prestation-item" *ngFor="let p of prestations" (click)="select(p)"
+           [class.selected]="selectedPrestation?.id === p.id">
+        <div class="prestation-left">
+          <span class="type-badge">{{ p.type }}</span>
+          <span class="prestation-title">{{ p.title }}</span>
+          <span class="prestation-client" *ngIf="p.client">· {{ p.client.name }}</span>
+        </div>
+        <div class="prestation-right">
+          <span class="price-tag" *ngIf="p.price">{{ p.price | number:'1.0-0' }} €</span>
+          <select class="status-select" [(ngModel)]="p.status"
+                  (change)="changeStatus(p.id!, p.status!)" (click)="$event.stopPropagation()">
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="CONFIRME">Confirmé</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ANNULE">Annulé</option>
+          </select>
+          <span class="status-badge status-{{ p.status }}">{{ p.status?.replace('_', ' ') }}</span>
+          <button class="btn-danger btn-sm" (click)="delete(p.id!); $event.stopPropagation()">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-icon">🎨</div>
+        <p>Aucune prestation pour l'instant.<br>Créez votre première mission !</p>
+      </div>
+    </ng-template>
+
+  </main>
+</div>
