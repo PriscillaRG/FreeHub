@@ -25,7 +25,7 @@ test:
   image: maven:3.9-eclipse-temurin-21
   script:
     - cd todo
-    - mvn test -Dtest="DemoApplicationTests,ClientServiceTest,AuthControllerIntegrationTest" -DfailIfNoTests=false
+    - mvn test -Dspring.profiles.active=test -Dtest="DemoApplicationTests,ClientServiceTest,AuthControllerIntegrationTest" -DfailIfNoTests=false
 
 # --- QUALITE SONARQUBE ---
 # analyse la qualite du code (couverture, bugs, code smells)
