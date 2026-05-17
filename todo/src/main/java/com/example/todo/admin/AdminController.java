@@ -5,7 +5,7 @@ import com.example.todo.auth.UserRepository;
 import com.example.todo.task.Task;
 import com.example.todo.task.TaskRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,10 +17,10 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public AdminController(UserRepository userRepository, TaskRepository taskRepository, BCryptPasswordEncoder passwordEncoder) {
+    public AdminController(UserRepository userRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.passwordEncoder = passwordEncoder;
@@ -44,7 +44,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public User createUser(@RequestBody User user) {
         // encode le mot de passe avant de sauvegarder
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
